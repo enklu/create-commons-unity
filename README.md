@@ -1,2 +1,3 @@
-# commons-unitylog
-Simple logging for Unity projects.
+# Create-Commons-UnityLog
+
+Simple logging for Unity clients.
