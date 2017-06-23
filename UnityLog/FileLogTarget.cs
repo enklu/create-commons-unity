@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace CreateAR.Commons.Logging
+namespace CreateAR.Commons.UnityLog
 {
     /// <summary>
     /// Forwards logs to a file.

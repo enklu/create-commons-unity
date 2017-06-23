@@ -1,4 +1,4 @@
-﻿namespace CreateAR.Commons.Logging
+﻿namespace CreateAR.Commons.UnityLog
 {
     /// <summary>
     /// An interface for formatting logs.

@@ -3,10 +3,10 @@
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Create-Commons-UnityLog")]
+[assembly: AssemblyTitle("CreateAR.Commons.UnityLog")]
 [assembly: AssemblyDescription("Logging for Unity projects.")]
 [assembly: AssemblyCompany("CreateAR")]
-[assembly: AssemblyProduct("Create-Commons-UnityLog")]
+[assembly: AssemblyProduct("CreateAR.Commons.UnityLog")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 
 // Version information for an assembly consists of the following four values:
