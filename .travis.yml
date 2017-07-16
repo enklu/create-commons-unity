@@ -1,0 +1,4 @@
+language: csharp
+script:
+- gradle build
+- gradle upload
