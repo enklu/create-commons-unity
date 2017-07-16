@@ -1,3 +1,6 @@
 language: csharp
+before_install:
+- apt-get -qq update
+- apt-get install gradle
 script:
 - gradle build
