@@ -1,0 +1,15 @@
+configuration: Debug
+platform: Any CPU
+image: Visual Studio 2017
+
+install:
+- nuget sources add -Name Nexus -Source %NUGET_INTERNAL_URL%
+- nuget setapikey %NUGET_INTERNAL_APIKEY% -Source Nexus
+
+- nuget restore CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging.csproj
+- nuget restore CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging.Test/CreateAR.Commons.Unity.Logging.Test.csproj
+
+build:
+  project:
+  -CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging.csproj
+  -CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging.Test/CreateAR.Commons.Unity.Logging.Test.csproj
