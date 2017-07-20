@@ -1,1 +1,1 @@
-include 'Logging'
+include 'CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging'
