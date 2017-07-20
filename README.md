@@ -1,3 +1,3 @@
 # Overview
 
-![build-badge](https://travis-ci.com/create-ar/create-commons-unity.svg?token=2XvyxH5jrHyUszCyMGW4&branch=master) Libraries for Unity projects.
+[![Build status](https://ci.appveyor.com/api/projects/status/9d32b06llpcopfao?svg=true)](https://ci.appveyor.com/project/thegoldenmule/create-commons-unity) Libraries for Unity projects.
