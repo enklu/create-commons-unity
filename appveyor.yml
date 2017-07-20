@@ -11,5 +11,5 @@ install:
 
 build:
   project:
-  -CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging.csproj
-  -CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging.Test/CreateAR.Commons.Unity.Logging.Test.csproj
+  - CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging.csproj
+  - CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging.Test/CreateAR.Commons.Unity.Logging.Test.csproj
