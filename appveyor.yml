@@ -9,7 +9,6 @@ install:
 - nuget restore CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging.csproj
 - nuget restore CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging.Test/CreateAR.Commons.Unity.Logging.Test.csproj
 
-build:
-  project:
-  - CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging.csproj
-  - CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging.Test/CreateAR.Commons.Unity.Logging.Test.csproj
+build_script:
+- msbuild /t:Rebuild CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging.csproj
+- msbuild /t:Rebuild CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging.Test/CreateAR.Commons.Unity.Logging.Test.csproj
