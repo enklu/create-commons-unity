@@ -1,6 +1,0 @@
-language: csharp
-before_install:
-- sudo apt-get -qq update
-- sudo apt-get install gradle
-script:
-- gradle build
