@@ -6,27 +6,50 @@ using UnityEngine;
 
 namespace CreateAR.Commons.Unity.Editor
 {
+    /// <summary>
+    /// Generic inspector for objects. Automatically shows controls for all
+    /// fields.
+    /// </summary>
     public class FormInspector : IEditorView
     {
+        /// <summary>
+        /// Options for rendering controls.
+        /// </summary>
         [Flags]
         public enum RenderOptions
         {
+            /// <summary>
+            /// Default options.
+            /// </summary>
             None,
+
+            /// <summary>
+            /// Sets the inspector to alphabetize controls.
+            /// </summary>
             Alphabetize
         }
 
-        private RenderOptions _options;
+        /// <summary>
+        /// Options for rendering forms.
+        /// </summary>
+        private readonly RenderOptions _options;
 
+        /// <summary>
+        /// Backing variable for Value property.
+        /// </summary>
         private object _value;
 
-        private readonly Dictionary<Type, Control> _controls = new Dictionary<Type, Control>();
+        /// <summary>
+        /// Lookup from type to the renderer that creates controls for it.
+        /// </summary>
+        private readonly Dictionary<Type, ControlRenderer> _controls = new Dictionary<Type, ControlRenderer>();
 
+        /// <summary>
+        /// Value to draw controls for.
+        /// </summary>
         public object Value
         {
-            get
-            {
-                return _value;
-            }
+            get => _value;
             set
             {
                 if (_value == value)
@@ -37,36 +60,47 @@ namespace CreateAR.Commons.Unity.Editor
                 _value = value;
 
                 // repaint immediately
-                if (null != OnRepaintRequested)
-                {
-                    OnRepaintRequested();
-                }
+                OnRepaintRequested?.Invoke();
             }
         }
 
+        /// <summary>
+        /// Event to call when this inspector needs a repaint.
+        /// </summary>
         public event Action OnRepaintRequested;
 
+        /// <summary>
+        /// Creates a new FormInspector.
+        /// </summary>
+        /// <param name="options">Addional options for rendering.</param>
         public FormInspector(RenderOptions options = RenderOptions.None)
         {
+            _options = options;
+
             // gather the custom controls
             ForAllTypes(type =>
             {
-                if (type.IsSubclassOf(typeof(Control)))
+                if (!type.IsSubclassOf(typeof(ControlRenderer)))
                 {
-                    var attributes = type.GetCustomAttributes(
-                        typeof(ControlTypeAttribute),
-                        true);
-                    if (0 == attributes.Length)
-                    {
-                        return;
-                    }
-
-                    var controlTypeAttribute = (ControlTypeAttribute) attributes[0];
-                    _controls[controlTypeAttribute.Type] = (Control) Activator.CreateInstance(type);
+                    return;
                 }
+
+                var attributes = type.GetCustomAttributes(
+                    typeof(ControlTypeAttribute),
+                    true);
+                if (0 == attributes.Length)
+                {
+                    return;
+                }
+
+                var controlTypeAttribute = (ControlTypeAttribute) attributes[0];
+                _controls[controlTypeAttribute.Type] = (ControlRenderer) Activator.CreateInstance(type);
             });
         }
 
+        /// <summary>
+        /// Draws the inspector.
+        /// </summary>
         public void Draw()
         {
             if (null == _value)
@@ -77,32 +111,28 @@ namespace CreateAR.Commons.Unity.Editor
             DrawObjectFields(_value);
         }
 
+        /// <summary>
+        /// Draws controls for each field.
+        /// </summary>
+        /// <param name="value"></param>
         private void DrawObjectFields(object value)
         {
             var shouldRepaint = false;
-            var parameters = new ControlParameter[0];
+            var parameters = new ControlRendererParameter[0];
             var type = value.GetType();
 
-            var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public);
-            if (0 != (_options & RenderOptions.Alphabetize))
-            {
-                var sortedFields = fields.ToList();
-                sortedFields.Sort((a, b) => string.CompareOrdinal(a.Name, b.Name));
-
-                fields = sortedFields.ToArray();
-            }
-
+            var fields = GetFields(type);
             for (int i = 0, ilen = fields.Length; i < ilen; i++)
             {
                 var field = fields[i];
                 var fieldType = field.FieldType;
 
-                Control control;
-                if (!_controls.TryGetValue(fieldType, out control))
+                ControlRenderer controlRenderer;
+                if (!_controls.TryGetValue(fieldType, out controlRenderer))
                 {
                     if (fieldType.IsEnum)
                     {
-                        control = _controls[typeof(Enum)];
+                        controlRenderer = _controls[typeof(Enum)];
                     }
                     else
                     {
@@ -110,12 +140,11 @@ namespace CreateAR.Commons.Unity.Editor
                     }
                 }
 
-                var attributes = field.GetCustomAttributes(true);
-
                 // TODO: attributes > parameters
+                //var attributes = field.GetCustomAttributes(true);
 
                 var fieldValue = field.GetValue(value);
-                if (control.Draw(field.Name, ref fieldValue, ref parameters))
+                if (controlRenderer.Draw(field.Name, ref fieldValue, ref parameters))
                 {
                     field.SetValue(value, fieldValue);
 
@@ -125,13 +154,34 @@ namespace CreateAR.Commons.Unity.Editor
 
             if (shouldRepaint)
             {
-                if (null != OnRepaintRequested)
-                {
-                    OnRepaintRequested();
-                }
+                OnRepaintRequested?.Invoke();
             }
         }
 
+        /// <summary>
+        /// Retrieves fields for a type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        private FieldInfo[] GetFields(IReflect type)
+        {
+            var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public);
+
+            // alphabetize the fields
+            if (0 != (_options & RenderOptions.Alphabetize))
+            {
+                var sortedFields = fields.ToList();
+                sortedFields.Sort((a, b) => string.CompareOrdinal(a.Name, b.Name));
+
+                fields = sortedFields.ToArray();
+            }
+            return fields;
+        }
+
+        /// <summary>
+        /// Allows iteration over all types.
+        /// </summary>
+        /// <param name="action"></param>
         private static void ForAllTypes(Action<Type> action)
         {
             // catch exceptions
@@ -149,7 +199,7 @@ namespace CreateAR.Commons.Unity.Editor
             for (int i = 0, ilen = assemblies.Length; i < ilen; i++)
             {
                 var assembly = assemblies[i];
-                Type[] types = null;
+                Type[] types;
 
                 try
                 {
