@@ -47,10 +47,26 @@ namespace CreateAR.Commons.Unity.Editor
         }
 
         /// <summary>
-        /// Action buttons to draw.
+        /// Gets/sets the zero indexed current tab.
         /// </summary>
-        public ActionButton[] Actions { get; set; }
+        public int CurrentTab
+        {
+            get => _tab;
+            set
+            {
+                value = Mathf.Clamp(value, 0, _tabs.Length - 1);
 
+                if (_tab == value)
+                {
+                    return;
+                }
+
+                _tab = value;
+
+                Repaint();
+            }
+        }
+        
         /// <summary>
         /// Called when the component requests a repaint.
         /// </summary>
@@ -71,8 +87,12 @@ namespace CreateAR.Commons.Unity.Editor
         /// </summary>
         public void Draw()
         {
-            DrawLabels();
-            DrawTab();
+            EditorGUILayout.BeginHorizontal();
+            {
+                DrawLabels();
+                DrawTab();
+            }
+            EditorGUILayout.EndHorizontal();
         }
 
         /// <summary>
@@ -80,9 +100,9 @@ namespace CreateAR.Commons.Unity.Editor
         /// </summary>
         private void DrawLabels()
         {
-            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.BeginVertical();
 
-            // tabs
+            // draw each tab
             if (null != Tabs)
             {
                 for (int i = 0, len = Tabs.Length; i < len; i++)
@@ -100,10 +120,18 @@ namespace CreateAR.Commons.Unity.Editor
                     if (_tab == i)
                     {
                         EditorUtils.PushEnabled(false);
-                        GUILayout.Button(label, "TabSelected", GUILayout.ExpandHeight(false));
+                        GUILayout.Button(
+                            label,
+                            "TabSelected",
+                            GUILayout.ExpandHeight(false),
+                            GUILayout.ExpandWidth(false));
                         EditorUtils.PopEnabled();
                     }
-                    else if (GUILayout.Button(label, "TabUnselected", GUILayout.ExpandHeight(false)))
+                    else if (GUILayout.Button(
+                        label,
+                        "TabUnselected",
+                        GUILayout.ExpandHeight(false),
+                        GUILayout.ExpandWidth(false)))
                     {
                         _tab = i;
 
@@ -112,30 +140,7 @@ namespace CreateAR.Commons.Unity.Editor
                 }
             }
 
-            // action buttons
-            if (null != Actions)
-            {
-                for (int i = 0, len = Actions.Length; i < len; i++)
-                {
-                    var action = Actions[i];
-                    var label = string.IsNullOrEmpty(action.Label)
-                        ? "(Unnamed)"
-                        : action.Label;
-
-                    if (GUILayout.Button(
-                        label,
-                        "TabUnselected",
-                        GUILayout.ExpandHeight(false),
-                        GUILayout.ExpandWidth(false)))
-                    {
-                        action.OnAction?.Invoke(action);
-
-                        Repaint();
-                    }
-                }
-            }
-
-            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.EndVertical();
         }
 
         /// <summary>
