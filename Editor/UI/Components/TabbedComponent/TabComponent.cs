@@ -30,10 +30,7 @@ namespace CreateAR.Commons.Unity.Editor
         /// </summary>
         protected void Repaint()
         {
-            if (null != OnRepaintRequested)
-            {
-                OnRepaintRequested();
-            }
+            OnRepaintRequested?.Invoke();
         }
     }
 }

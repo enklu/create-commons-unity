@@ -109,10 +109,7 @@ namespace CreateAR.Commons.Unity.Editor
         /// </summary>
         protected virtual void Clicked()
         {
-            if (null != OnClicked)
-            {
-                OnClicked(this);
-            }
+            OnClicked?.Invoke(this);
         }
     }
 }

@@ -36,10 +36,7 @@ namespace CreateAR.Commons.Unity.Editor
         /// </summary>
         public ListItem Selected
         {
-            get
-            {
-                return _selected;
-            }
+            get => _selected;
             set
             {
                 if (_selected == value)
@@ -59,10 +56,7 @@ namespace CreateAR.Commons.Unity.Editor
                     _selected.Selected = true;
                 }
 
-                if (null != OnSelected)
-                {
-                    OnSelected(Selected);
-                }
+                OnSelected?.Invoke(Selected);
 
                 Repaint();
             }
@@ -71,13 +65,7 @@ namespace CreateAR.Commons.Unity.Editor
         /// <summary>
         /// Retrieves the current set of items.
         /// </summary>
-        public ListItem[] Items
-        {
-            get
-            {
-                return _items.ToArray();
-            }
-        }
+        public ListItem[] Items => _items.ToArray();
 
         /// <summary>
         /// Retrieves the current set of items.
@@ -139,7 +127,7 @@ namespace CreateAR.Commons.Unity.Editor
         /// <summary>
         /// Populates the list with an IEnumerable of items.
         /// </summary>
-        /// <param name="items"></param>
+        /// <param name="items">Clears the list and sets a new data source.</param>
         public virtual void Populate(IEnumerable<ListItem> items)
         {
             _items.Clear();
@@ -162,7 +150,7 @@ namespace CreateAR.Commons.Unity.Editor
         /// <summary>
         /// Appends the list of items to the end of the current items.
         /// </summary>
-        /// <param name="items"></param>
+        /// <param name="items">ListItems to add to the end of the list.</param>
         public virtual void Append(IEnumerable<ListItem> items)
         {
             if (null != items)
@@ -186,10 +174,7 @@ namespace CreateAR.Commons.Unity.Editor
         /// </summary>
         protected void Repaint()
         {
-            if (null != OnRepaintRequested)
-            {
-                OnRepaintRequested();
-            }
+            OnRepaintRequested?.Invoke();
         }
     }
 }

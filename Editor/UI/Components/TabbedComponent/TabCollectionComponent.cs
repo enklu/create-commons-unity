@@ -30,10 +30,7 @@ namespace CreateAR.Commons.Unity.Editor
         /// </summary>
         public TabComponent[] Tabs
         {
-            get
-            {
-                return _tabs;
-            }
+            get => _tabs;
             set
             {
                 _tabs = value;
@@ -131,10 +128,7 @@ namespace CreateAR.Commons.Unity.Editor
                         GUILayout.ExpandHeight(false),
                         GUILayout.ExpandWidth(false)))
                     {
-                        if (null != action.OnAction)
-                        {
-                            action.OnAction.Invoke(action);
-                        }
+                        action.OnAction?.Invoke(action);
 
                         Repaint();
                     }
@@ -154,13 +148,7 @@ namespace CreateAR.Commons.Unity.Editor
                 return;
             }
 
-            var tab = Tabs[_tab];
-            if (null == tab)
-            {
-                return;
-            }
-
-            tab.Draw();
+            Tabs[_tab]?.Draw();
         }
 
         /// <summary>
@@ -168,10 +156,7 @@ namespace CreateAR.Commons.Unity.Editor
         /// </summary>
         private void Repaint()
         {
-            if (null != OnRepaintRequested)
-            {
-                OnRepaintRequested();
-            }
+            OnRepaintRequested?.Invoke();
         }
     }
 }

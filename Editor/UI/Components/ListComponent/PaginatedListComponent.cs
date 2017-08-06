@@ -4,17 +4,38 @@ using UnityEngine;
 
 namespace CreateAR.Commons.Unity.Editor
 {
+    /// <summary>
+    /// Subclass of ListComponent that renders a static number of ListItems and
+    /// a selection of pages. This is helpful for extremely long lists.
+    /// </summary>
     public class PaginatedListComponent : ListComponent
     {
+        /// <summary>
+        /// The number of elements per page.
+        /// </summary>
         private int _elementsPerPage = 10;
+
+        /// <summary>
+        /// The current page the component is rendering.
+        /// </summary>
         private int _page = 0;
+
+        /// <summary>
+        /// The last page.
+        /// </summary>
         private int _maxPage = 0;
 
+        /// <summary>
+        /// Position for scroll controls.
+        /// </summary>
         private Vector2 _scrollPosition;
 
+        /// <summary>
+        /// Controls the number of elements the component renders per page.
+        /// </summary>
         public int ElementsPerPage
         {
-            get { return _elementsPerPage; }
+            get => _elementsPerPage;
             set
             {
                 _elementsPerPage = value;
@@ -24,6 +45,9 @@ namespace CreateAR.Commons.Unity.Editor
             }
         }
 
+        /// <summary>
+        /// Draws the ListItems and page selection.
+        /// </summary>
         public override void Draw()
         {
             if (0 == _items.Count)
@@ -58,10 +82,7 @@ namespace CreateAR.Commons.Unity.Editor
                     }
                     EditorUtils.PopEnabled();
 
-                    GUILayout.Label(string.Format(
-                        "Page {0}/{1}",
-                        _page + 1,
-                        _maxPage + 1));
+                    GUILayout.Label($"Page {_page + 1}/{_maxPage + 1}");
                     
                     EditorUtils.PushEnabled(_page < _maxPage);
                     if (GUILayout.Button(">>", GUILayout.ExpandWidth(false)))
