@@ -4,14 +4,14 @@
     <TargetFramework>net452</TargetFramework>
     <AssemblyName>CreateAR.Commons.Unity.Editor.UI</AssemblyName>
     <RootNamespace>CreateAR.Commons.Unity.Editor.UI</RootNamespace>
-    <AssemblyVersion>0.2.1</AssemblyVersion>
-    <Version>0.2.1</Version>
+    <AssemblyVersion>0.2.2</AssemblyVersion>
+    <Version>0.2.2</Version>
     <Description>UI components for Unity editor.</Description>
     <Copyright>Copyright © 2017 CreateAR</Copyright>
     <Authors>CreateAR</Authors>
     <IncludeSymbols>True</IncludeSymbols>
-    <PackageReleaseNotes>Added ability to set selected tab on TabCollection.</PackageReleaseNotes>
-    <FileVersion>0.2.1</FileVersion>
+    <PackageReleaseNotes>Added enabled flag to each tab.</PackageReleaseNotes>
+    <FileVersion>0.2.2</FileVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="UnityEditor" Version="2017.1.0.3" />

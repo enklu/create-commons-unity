@@ -127,15 +127,20 @@ namespace CreateAR.Commons.Unity.Editor
                             GUILayout.ExpandWidth(false));
                         EditorUtils.PopEnabled();
                     }
-                    else if (GUILayout.Button(
-                        label,
-                        "TabUnselected",
-                        GUILayout.ExpandHeight(false),
-                        GUILayout.ExpandWidth(false)))
+                    else
                     {
-                        _tab = i;
+                        EditorUtils.PushEnabled(GUI.enabled && tab.Enabled);
+                        if (GUILayout.Button(
+                            label,
+                            "TabUnselected",
+                            GUILayout.ExpandHeight(false),
+                            GUILayout.ExpandWidth(false)))
+                        {
+                            _tab = i;
 
-                        Repaint();
+                            Repaint();
+                        }
+                        EditorUtils.PopEnabled();
                     }
                 }
             }
