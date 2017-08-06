@@ -1,3 +1,8 @@
 # Overview
 
-[![Build status](https://ci.appveyor.com/api/projects/status/9d32b06llpcopfao?svg=true)](https://ci.appveyor.com/project/thegoldenmule/create-commons-unity) Libraries for Unity projects.
+Libraries for Unity projects. Projects are built to dlls and uploaded to an artifact repository.
+
+* Logging
+* Editor
+  * UI
+  * FormInspector
