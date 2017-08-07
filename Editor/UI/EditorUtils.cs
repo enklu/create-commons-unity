@@ -103,15 +103,19 @@ namespace CreateAR.Commons.Unity.Editor
         /// </summary>
         private static void EditorApplication_OnUpdate()
         {
-            for (var i = _coroutines.Count - 1; i >= 0; i--)
-            {
-                if (_coroutines[i].MoveNext())
-                {
-                    continue;
-                }
+            var coroutineCopy = _coroutines.ToArray();
+            var coroutineIdsCopy = _coroutineIds.ToArray();
 
-                _coroutines.RemoveAt(i);
-                _coroutineIds.RemoveAt(i);
+            _coroutines.Clear();
+            _coroutineIds.Clear();
+
+            for (int i = 0, len = coroutineCopy.Length; i < len; i++)
+            {
+                if (coroutineCopy[i].MoveNext())
+                {
+                    _coroutines.Add(coroutineCopy[i]);
+                    _coroutineIds.Add(coroutineIdsCopy[i]);
+                }
             }
         }
     }

@@ -121,8 +121,7 @@ namespace CreateAR.Commons.Unity.Editor
                     {
                         EditorUtils.PushEnabled(false);
                         GUILayout.Button(
-                            label,
-                            "TabSelected",
+                            $"<i>{label}</i>",
                             GUILayout.ExpandHeight(false),
                             GUILayout.ExpandWidth(false));
                         EditorUtils.PopEnabled();
@@ -132,7 +131,6 @@ namespace CreateAR.Commons.Unity.Editor
                         EditorUtils.PushEnabled(GUI.enabled && tab.Enabled);
                         if (GUILayout.Button(
                             label,
-                            "TabUnselected",
                             GUILayout.ExpandHeight(false),
                             GUILayout.ExpandWidth(false)))
                         {
