@@ -1,1 +1,4 @@
-include 'CreateAR.Commons.Unity.Logging/CreateAR.Commons.Unity.Logging'
+include 'Logging/CreateAR.Commons.Unity.Logging'
+include 'Logging/CreateAR.Commons.Unity.Logging.Test'
+include 'Editor/UI'
+include 'Editor/FormInspector'

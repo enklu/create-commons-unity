@@ -100,7 +100,8 @@ namespace CreateAR.Commons.Unity.Editor
         /// </summary>
         private void DrawLabels()
         {
-            EditorGUILayout.BeginVertical();
+            EditorGUILayout.BeginVertical(
+                GUILayout.Width(EditorGUIUtility.fieldWidth));
 
             // draw each tab
             if (null != Tabs)
@@ -121,9 +122,10 @@ namespace CreateAR.Commons.Unity.Editor
                     {
                         EditorUtils.PushEnabled(false);
                         GUILayout.Button(
-                            $"<i>{label}</i>",
+                            label,
+                            "TabSelected",
                             GUILayout.ExpandHeight(false),
-                            GUILayout.ExpandWidth(false));
+                            GUILayout.ExpandWidth(true));
                         EditorUtils.PopEnabled();
                     }
                     else
@@ -131,8 +133,9 @@ namespace CreateAR.Commons.Unity.Editor
                         EditorUtils.PushEnabled(GUI.enabled && tab.Enabled);
                         if (GUILayout.Button(
                             label,
+                            "TabUnselected",
                             GUILayout.ExpandHeight(false),
-                            GUILayout.ExpandWidth(false)))
+                            GUILayout.ExpandWidth(true)))
                         {
                             _tab = i;
 

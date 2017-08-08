@@ -262,3 +262,6 @@ __pycache__/
 
 # gradle
 .gradle/
+
+# vim
+*.swp
