@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net35</TargetFramework>
+    <AssemblyName>CreateAR.Commons.Unity.Storage.Test</AssemblyName>
+    <RootNamespace>CreateAR.Commons.Unity.Storage</RootNamespace>
+    <AssemblyVersion>0.1.0</AssemblyVersion>
+    <Version>0.1.0</Version>
+    <Description>TODO</Description>
+    <Copyright>Copyright © 2017 CreateAR</Copyright>
+    <Authors>CreateAR</Authors>
+    <IncludeSymbols>True</IncludeSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CreateAR.Commons.Unity.Logging" Version="0.2.0" />
+    <PackageReference Include="NUnit" Version="3.7.1" />
+    <PackageReference Include="NUnit.Console" Version="3.7.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.8.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CreateAR.Commons.Unity.Storage\CreateAR.Commons.Unity.Storage.csproj" />
+  </ItemGroup>
+</Project>
