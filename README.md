@@ -6,3 +6,4 @@ Libraries for Unity projects. Projects are built to dlls and uploaded to an arti
 * Editor
   * UI
   * FormInspector
+* Async
