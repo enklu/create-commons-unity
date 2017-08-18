@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net35</TargetFrameworks>
+    <RootNamespace>CreateAR.Commons.Unity.DataStructures</RootNamespace>
+    <AssemblyName>CreateAR.Commons.Unity.DataStructures.Tests</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NUnit" Version="3.6.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.8.0-alpha1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CreateAR.Commons.Unity.DataStructures\CreateAR.Commons.Unity.DataStructures.csproj" />
+  </ItemGroup>
+
+</Project>
