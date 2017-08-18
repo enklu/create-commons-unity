@@ -2,16 +2,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net35</TargetFramework>
-    <AssemblyName>CreateAR.Commons.Unity.Logging</AssemblyName>
-    <RootNamespace>CreateAR.Commons.Unity.Logging</RootNamespace>
+    <AssemblyName>CreateAR.Commons.Unity.Async</AssemblyName>
+    <RootNamespace>CreateAR.Commons.Unity.Async</RootNamespace>
     <AssemblyVersion>0.1.0</AssemblyVersion>
-    <Version>0.2.0</Version>
-    <Description>Logging for Unity.</Description>
+    <Version>0.1.0</Version>
+    <Description>TODO</Description>
     <Copyright>Copyright © 2017 CreateAR</Copyright>
     <Authors>CreateAR</Authors>
     <IncludeSymbols>True</IncludeSymbols>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="UnityEngine" Version="2017.1.0.3" />
-  </ItemGroup>
 </Project>
