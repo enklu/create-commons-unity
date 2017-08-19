@@ -40,7 +40,7 @@ namespace CreateAR.Commons.Unity.Storage
 
         public string Key { get; }
 
-        internal StorageBucket(
+        public StorageBucket(
             IStorageWorker worker,
             string key,
             int version)
