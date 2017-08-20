@@ -12,7 +12,7 @@
     <IncludeSymbols>True</IncludeSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CreateAR.Commons.Unity.Async" Version="0.1.0" />
+    <PackageReference Include="CreateAR.Commons.Unity.Async" Version="0.2.2" />
     <PackageReference Include="CreateAR.Commons.Unity.DataStructures" Version="0.1.0" />
     <PackageReference Include="CreateAR.Commons.Unity.Logging" Version="0.2.0" />
     <PackageReference Include="NUnit" Version="3.7.1" />

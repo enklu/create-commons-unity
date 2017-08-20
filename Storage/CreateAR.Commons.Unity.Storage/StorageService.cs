@@ -2,6 +2,8 @@
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 
+using Void = CreateAR.Commons.Unity.Async.Void;
+
 namespace CreateAR.Commons.Unity.Storage
 {
     public class StorageWorker
@@ -24,7 +26,7 @@ namespace CreateAR.Commons.Unity.Storage
     {
         IAsyncToken<StorageWorkerResponse<T>> Load<T>(string key);
         IAsyncToken<StorageWorkerResponse<T>> Save<T>(string key, T value);
-        IAsyncToken<T> Delete<T>(string key);
+        IAsyncToken<Void> Delete<T>(string key);
     }
 
     public sealed class StorageBucket<T>
@@ -46,7 +48,7 @@ namespace CreateAR.Commons.Unity.Storage
             int version)
         {
             _worker = worker;
-            _version = version;
+            _version = _manifestVersion = version;
 
             Key = key;
         }
