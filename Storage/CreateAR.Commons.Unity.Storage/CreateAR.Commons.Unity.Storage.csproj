@@ -4,13 +4,13 @@
     <TargetFramework>net35</TargetFramework>
     <AssemblyName>CreateAR.Commons.Unity.Storage</AssemblyName>
     <RootNamespace>CreateAR.Commons.Unity.Storage</RootNamespace>
-    <AssemblyVersion>0.2.0</AssemblyVersion>
-    <Version>0.2.0</Version>
+    <AssemblyVersion>0.2.1</AssemblyVersion>
+    <Version>0.2.1</Version>
     <Description>Wraps storage endpoints.</Description>
     <Copyright>Copyright © 2017 CreateAR</Copyright>
     <Authors>CreateAR</Authors>
     <IncludeSymbols>True</IncludeSymbols>
-    <FileVersion>0.2.0</FileVersion>
+    <FileVersion>0.2.1</FileVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CreateAR.Commons.Unity.Async" Version="0.3.0" />

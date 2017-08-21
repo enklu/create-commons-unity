@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 
 namespace CreateAR.Commons.Unity.Storage
@@ -25,9 +24,7 @@ namespace CreateAR.Commons.Unity.Storage
         /// </summary>
         private readonly List<StorageBucket> _buckets = new List<StorageBucket>();
 
-        /// <summary>
-        /// Retrieves all buckets.
-        /// </summary>
+        /// <inheritdoc cref="IStorageService"/>
         public StorageBucket[] All => _buckets.ToArray();
 
         /// <summary>
@@ -40,10 +37,7 @@ namespace CreateAR.Commons.Unity.Storage
             _worker.OnDelete += Worker_OnDelete;
         }
 
-        /// <summary>
-        /// Refreshes the local index.
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc cref="IStorageService"/>
         public IAsyncToken<StorageService> Refresh()
         {
             if (null != _refreshToken)
@@ -87,12 +81,7 @@ namespace CreateAR.Commons.Unity.Storage
             return token;
         }
 
-        /// <summary>
-        /// Creates a new bucket.
-        /// </summary>
-        /// <typeparam name="T">The type of object to save.</typeparam>
-        /// <param name="value">The value to save.</param>
-        /// <returns></returns>
+        /// <inheritdoc cref="IStorageService"/>
         public IAsyncToken<StorageBucket> Create<T>(T value)
         {
             var token = new AsyncToken<StorageBucket>();
@@ -115,11 +104,7 @@ namespace CreateAR.Commons.Unity.Storage
             return token;
         }
 
-        /// <summary>
-        /// Retrieves the StorageBucket for a particular key.
-        /// </summary>
-        /// <param name="key">The key of the bucket to lookup.</param>
-        /// <returns></returns>
+        /// <inheritdoc cref="IStorageService"/>
         public StorageBucket Get(string key)
         {
             for (int i = 0, len = _buckets.Count; i < len; i++)
@@ -134,12 +119,7 @@ namespace CreateAR.Commons.Unity.Storage
             return null;
         }
 
-        /// <summary>
-        /// Searches buckets for the first one with a tag that includes this
-        /// tag as a substring.
-        /// </summary>
-        /// <param name="tag">Tag to serch for.</param>
-        /// <returns></returns>
+        /// <inheritdoc cref="IStorageService"/>
         public StorageBucket FindOne(string tag)
         {
             for (int i = 0, len = _buckets.Count; i < len; i++)
@@ -154,11 +134,7 @@ namespace CreateAR.Commons.Unity.Storage
             return null;
         }
 
-        /// <summary>
-        /// Retrieves all buckets with a matching tag.
-        /// </summary>
-        /// <param name="tag">The tag to lookup.</param>
-        /// <returns></returns>
+        /// <inheritdoc cref="IStorageService"/>
         public StorageBucket[] FindAll(string tag)
         {
             var buckets = new List<StorageBucket>();
