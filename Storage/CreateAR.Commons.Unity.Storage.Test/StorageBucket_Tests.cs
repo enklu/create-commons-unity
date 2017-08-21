@@ -1,73 +1,78 @@
-﻿using System;
-using CreateAR.Commons.Unity.Async;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace CreateAR.Commons.Unity.Storage
 {
-    public class DummyStorageWorker : IStorageWorker
-    {
-        public IAsyncToken<StorageWorkerResponse<T>> Load<T>(string key)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncToken<StorageWorkerResponse<T>> Save<T>(string key, T value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncToken<T> Delete<T>(string key)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
     [TestFixture]
     public class StorageBucket_Tests
     {
-        public class TestClass
-        {
-            public string Foo;
-        }
+        private StorageBucket _bucket;
 
-        private readonly string _key = "this is a test key";
-        private readonly int _version = 21187;
-        private readonly TestClass _value = new TestClass
+        [SetUp]
+        public void SetUp()
         {
-            Foo = Guid.NewGuid().ToString()
-        };
-
-        private StorageBucket<TestClass> _bucket;
-
-        public void Setup()
-        {
-            _bucket = new StorageBucket<TestClass>(
-                new DummyStorageWorker(),
-                _key,
-                _version);
+            _bucket = new StorageBucket(
+                new StorageService_Tests.SuccessStorageWorker(),
+                "TestKey",
+                "TestTags",
+                1022);
         }
 
         [Test]
-        public void LoadValueSuccess()
+        public void DeleteSuccess()
+        {
+            var called = false;
+            _bucket
+                .Delete()
+                .OnSuccess(_ => called = true);
+
+            Assert.IsTrue(called);
+        }
+
+        [Test]
+        public void CreateSuccess()
         {
             var successCalled = false;
-            var failureCalled = false;
+            _bucket
+                .Delete()
+                .OnSuccess(_ => successCalled = true);
+
+            Assert.IsTrue(successCalled);
+        }
+
+        [Test]
+        public void SaveSuccess()
+        {
+            var successCalled = true;
 
             _bucket
-                .Value()
-                .OnSuccess(value =>
+                .Save(new TestClass
+                {
+                    Foo = "test"
+                })
+                .OnSuccess(_ =>
                 {
                     successCalled = true;
-
-                    Assert.Equals(_value.Foo, value.Foo);
-                })
-                .OnFailure(_ =>
-                {
-                    failureCalled = false;
                 });
 
             Assert.IsTrue(successCalled);
-            Assert.IsFalse(failureCalled);
+        }
+
+        [Test]
+        public void SaveTagsSuccess()
+        {
+            var successCalled = true;
+
+            _bucket.Tags = "newtags";
+            _bucket
+                .Save()
+                .OnSuccess(_ =>
+                {
+                    successCalled = true;
+
+                    Assert.AreEqual("newtags", _bucket.Tags);
+                });
+
+            Assert.IsTrue(successCalled);
         }
     }
 }

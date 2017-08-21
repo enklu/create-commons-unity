@@ -1,187 +1,172 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.Http;
 
 namespace CreateAR.Commons.Unity.Storage
 {
-    public class StorageWorker
+    /// <summary>
+    /// Service for getting, saving, and querying a user's key-value storage
+    /// buckets.
+    /// </summary>
+    public sealed class StorageService : IStorageService
     {
-        private readonly IHttpService _http;
-
-        public StorageWorker(IHttpService http)
-        {
-            _http = http;
-        }
-    }
-
-    public class StorageWorkerResponse<T>
-    {
-        public T Value;
-        public int Version;
-    }
-
-    public interface IStorageWorker
-    {
-        IAsyncToken<StorageWorkerResponse<T>> Load<T>(string key);
-        IAsyncToken<StorageWorkerResponse<T>> Save<T>(string key, T value);
-        IAsyncToken<T> Delete<T>(string key);
-    }
-
-    public sealed class StorageBucket<T>
-    {
+        /// <summary>
+        /// Object that makes calls.
+        /// </summary>
         private readonly IStorageWorker _worker;
 
-        private int _version;
-        private int _manifestVersion;
+        /// <summary>
+        /// Token used during refresh.
+        /// </summary>
+        private AsyncToken<StorageService> _refreshToken;
 
-        private T _value;
+        /// <summary>
+        /// The list of buckets this user owns.
+        /// </summary>
+        private readonly List<StorageBucket> _buckets = new List<StorageBucket>();
 
-        private IAsyncToken<T> _loadToken;
+        /// <inheritdoc cref="IStorageService"/>
+        public StorageBucket[] All => _buckets.ToArray();
 
-        public string Key { get; }
-
-        public StorageBucket(
-            IStorageWorker worker,
-            string key,
-            int version)
+        /// <summary>
+        /// Creates a new StorageService.
+        /// </summary>
+        /// <param name="worker">The worker to use. Generally StorageWorker.</param>
+        public StorageService(IStorageWorker worker)
         {
             _worker = worker;
-            _version = version;
-
-            Key = key;
+            _worker.OnDelete += Worker_OnDelete;
         }
 
-        public IAsyncToken<T> Value()
+        /// <inheritdoc cref="IStorageService"/>
+        public IAsyncToken<StorageService> Refresh()
         {
-            var token = new AsyncToken<T>();
-
-            if (_version == _manifestVersion && null != _value)
+            if (null != _refreshToken)
             {
-                token.Succeed(_value);
-            }
-            else
-            {
-                Load()
-                    .OnSuccess(token.Succeed)
-                    .OnFailure(token.Fail);
+                return _refreshToken.Token();
             }
 
-            return token;
-        }
-
-        public IAsyncToken<T> Save(T value)
-        {
-            var token = new AsyncToken<T>();
-
-            if (_manifestVersion != _version)
-            {
-                token.Fail(new Exception("Cannot save without version update."));
-            }
-            else
-            {
-                _worker
-                    .Save(Key, value)
-                    .OnSuccess(response =>
-                    {
-                        _value = response.Value;
-                        _version = response.Version;
-                        
-                        token.Succeed(_value);
-                    })
-                    .OnFailure(token.Fail);
-            }
-
-            return token;
-        }
-
-        public IAsyncToken<T> Delete()
-        {
-            var token = new AsyncToken<T>();
-
-            if (_manifestVersion != _version)
-            {
-                token.Fail(new Exception("Cannot delete without version update."));
-            }
-            else
-            {
-                _worker
-                    .Delete<T>(Key)
-                    .OnSuccess(_ =>
-                    {
-                        // TODO: To think about: we're trusting the worker to
-                        // TODO: tell the manifest
-
-                        token.Succeed(_value);
-                    })
-                    .OnFailure(token.Fail);
-            }
-
-            return token;
-        }
-
-        internal void VersionUpdate(int manifestVersion)
-        {
-            _manifestVersion = manifestVersion;
-        }
-
-        private IAsyncToken<T> Load()
-        {
-            if (null != _loadToken)
-            {
-                return _loadToken;
-            }
-
-            var token = new AsyncToken<T>();
+            // keep local reference
+            var token = _refreshToken = new AsyncToken<StorageService>();
 
             _worker
-                .Load<T>(Key)
-                .OnSuccess(response =>
+                .GetAll()
+                .OnSuccess(models =>
                 {
-                    _loadToken = null;
+                    for (int i = 0, len = models.Length; i < len; i++)
+                    {
+                        var model = models[i];
 
-                    _version = response.Version;
-                    _value = response.Value;
+                        var bucket = Get(model.key);
+                        if (null == bucket)
+                        {
+                            bucket = new StorageBucket(
+                                null,
+                                model.key,
+                                model.tags,
+                                model.version);
+                            _buckets.Add(bucket);
+                        }
 
-                    token.Succeed(_value);
+                        bucket.VersionUpdate(model.version);
+                    }
+
+                    token.Succeed(this);
                 })
                 .OnFailure(exception =>
                 {
-                    _loadToken = null;
+                    // null out class reference first
+                    _refreshToken = null;
 
                     token.Fail(exception);
                 });
 
             return token;
         }
-    }
 
-    public class StorageManifest
-    {
-        public IAsyncToken<StorageManifest> Refresh()
+        /// <inheritdoc cref="IStorageService"/>
+        public IAsyncToken<StorageBucket> Create<T>(T value)
         {
-            throw new NotImplementedException();
+            var token = new AsyncToken<StorageBucket>();
+
+            _worker
+                .Create(value)
+                .OnSuccess(model =>
+                {
+                    var bucket = new StorageBucket(
+                        _worker,
+                        model.key,
+                        model.tags,
+                        model.version);
+                    _buckets.Add(bucket);
+
+                    token.Succeed(bucket);
+                })
+                .OnFailure(token.Fail);
+
+            return token;
         }
 
-        public StorageBucket<T> FindOne<T>()
+        /// <inheritdoc cref="IStorageService"/>
+        public StorageBucket Get(string key)
         {
-            throw new NotImplementedException();
+            for (int i = 0, len = _buckets.Count; i < len; i++)
+            {
+                var bucket = _buckets[i];
+                if (bucket.Key == key)
+                {
+                    return bucket;
+                }
+            }
+
+            return null;
         }
 
-        public StorageBucket<T>[] FindAll<T>()
+        /// <inheritdoc cref="IStorageService"/>
+        public StorageBucket FindOne(string tag)
         {
-            throw new NotImplementedException();
+            for (int i = 0, len = _buckets.Count; i < len; i++)
+            {
+                var bucket = _buckets[i];
+                if (bucket.Tags.Contains(tag))
+                {
+                    return bucket;
+                }
+            }
+
+            return null;
         }
-    }
 
-    public interface IStorageService
-    {
-        StorageManifest Manifest { get; }
+        /// <inheritdoc cref="IStorageService"/>
+        public StorageBucket[] FindAll(string tag)
+        {
+            var buckets = new List<StorageBucket>();
+            for (int i = 0, len = _buckets.Count; i < len; i++)
+            {
+                var bucket = _buckets[i];
+                if (bucket.Tags.Contains(tag))
+                {
+                    buckets.Add(bucket);
+                }
+            }
 
-        IAsyncToken<StorageBucket<T>> Create<T>(T value);
-    }
+            return buckets.ToArray();
+        }
 
-    public sealed class StorageService
-    {
+        /// <summary>
+        /// Called when a bucket has been deleted.
+        /// </summary>
+        /// <param name="key">The key of the bucket.</param>
+        private void Worker_OnDelete(string key)
+        {
+            for (int i = 0, len = _buckets.Count; i < len; i++)
+            {
+                if (_buckets[i].Key == key)
+                {
+                    _buckets.RemoveAt(i);
 
+                    return;
+                }
+            }
+        }
     }
 }
