@@ -149,7 +149,7 @@ namespace CreateAR.Commons.Unity.Storage
             var token = new AsyncToken<Void>();
 
             _http
-                .Delete<CreateKvResponse>(_http.UrlBuilder.Url(ENDPOINT_KVS))
+                .Delete<CreateKvResponse>(_http.UrlBuilder.Url($"{ENDPOINT_KVS}/{key}"))
                 .OnSuccess(response =>
                 {
                     if (!response.Payload.success)
