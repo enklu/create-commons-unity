@@ -34,6 +34,8 @@ namespace CreateAR.Commons.Unity.Storage
                 _models.Add(Old);
             }
 
+            public event Action<string> OnDelete;
+
             public IAsyncToken<KvModel[]> GetAll()
             {
                 return new AsyncToken<KvModel[]>(_models.ToArray());

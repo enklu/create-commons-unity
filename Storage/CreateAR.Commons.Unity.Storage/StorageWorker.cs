@@ -23,6 +23,9 @@ namespace CreateAR.Commons.Unity.Storage
         private readonly IHttpService _http;
         private readonly JsonSerializer _json;
 
+        /// <inheritdoc cref="IStorageWorker"/>
+        public event Action<string> OnDelete;
+
         /// <summary>
         /// Creates a new StorageWorker.
         /// </summary>
@@ -36,10 +39,7 @@ namespace CreateAR.Commons.Unity.Storage
             _json = json;
         }
 
-        /// <summary>
-        /// Retrieves all KvModels.
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc cref="IStorageWorker"/>
         public IAsyncToken<KvModel[]> GetAll()
         {
             var token = new AsyncToken<KvModel[]>();
@@ -61,11 +61,7 @@ namespace CreateAR.Commons.Unity.Storage
             return token;
         }
 
-        /// <summary>
-        /// Creates a new KvModel.
-        /// </summary>
-        /// <param name="value">The intial value.</param>
-        /// <returns></returns>
+        /// <inheritdoc cref="IStorageWorker"/>
         public IAsyncToken<KvModel> Create(object value)
         {
             var token = new AsyncToken<KvModel>();
@@ -92,12 +88,7 @@ namespace CreateAR.Commons.Unity.Storage
             return token;
         }
 
-        /// <summary>
-        /// Loads a KV's value.
-        /// </summary>
-        /// <param name="key">The Key to lookup.</param>
-        /// <param name="type">The Type to deserialize the KV's value as.</param>
-        /// <returns></returns>
+        /// <inheritdoc cref="IStorageWorker"/>
         public IAsyncToken<object> Load(string key, Type type)
         {
             var token = new AsyncToken<object>();
@@ -123,14 +114,7 @@ namespace CreateAR.Commons.Unity.Storage
             return token;
         }
 
-        /// <summary>
-        /// Saves a KV.
-        /// </summary>
-        /// <param name="key">The key to save under.</param>
-        /// <param name="value">The value to save.</param>
-        /// <param name="tags">Associated tags.</param>
-        /// <param name="version">Version to save with.</param>
-        /// <returns></returns>
+        /// <inheritdoc cref="IStorageWorker"/>
         public IAsyncToken<Void> Save(string key, object value, string tags, int version)
         {
             var token = new AsyncToken<Void>();
@@ -159,11 +143,7 @@ namespace CreateAR.Commons.Unity.Storage
             return token;
         }
 
-        /// <summary>
-        /// Deletes a KV.
-        /// </summary>
-        /// <param name="key">The Key to lookup.</param>
-        /// <returns></returns>
+        /// <inheritdoc cref="IStorageWorker"/>
         public IAsyncToken<Void> Delete(string key)
         {
             var token = new AsyncToken<Void>();
@@ -177,6 +157,8 @@ namespace CreateAR.Commons.Unity.Storage
                         token.Fail(new Exception(response.Payload.error));
                         return;
                     }
+
+                    OnDelete?.Invoke(key);
 
                     token.Succeed(Void.Instance);
                 })

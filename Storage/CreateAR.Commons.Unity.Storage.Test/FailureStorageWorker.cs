@@ -6,6 +6,8 @@ namespace CreateAR.Commons.Unity.Storage
 {
     public class FailureStorageWorker : IStorageWorker
     {
+        public event Action<string> OnDelete;
+
         public IAsyncToken<KvModel[]> GetAll()
         {
             return new AsyncToken<KvModel[]>(new Exception());

@@ -53,14 +53,7 @@ namespace CreateAR.Commons.Unity.Storage
                 })
                 .OnSuccess(_ =>
                 {
-                    _bucket
-                        .Value<TestClass>()
-                        .OnSuccess(value =>
-                        {
-                            successCalled = true;
-
-                            Assert.AreEqual(foo, value.Foo);
-                        });
+                    successCalled = true;
                 });
 
             Assert.IsTrue(successCalled);

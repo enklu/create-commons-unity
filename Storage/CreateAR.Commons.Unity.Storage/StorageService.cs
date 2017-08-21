@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 
 namespace CreateAR.Commons.Unity.Storage
@@ -36,6 +37,7 @@ namespace CreateAR.Commons.Unity.Storage
         public StorageService(IStorageWorker worker)
         {
             _worker = worker;
+            _worker.OnDelete += Worker_OnDelete;
         }
 
         /// <summary>
@@ -170,6 +172,23 @@ namespace CreateAR.Commons.Unity.Storage
             }
 
             return buckets.ToArray();
+        }
+
+        /// <summary>
+        /// Called when a bucket has been deleted.
+        /// </summary>
+        /// <param name="key">The key of the bucket.</param>
+        private void Worker_OnDelete(string key)
+        {
+            for (int i = 0, len = _buckets.Count; i < len; i++)
+            {
+                if (_buckets[i].Key == key)
+                {
+                    _buckets.RemoveAt(i);
+
+                    return;
+                }
+            }
         }
     }
 }
