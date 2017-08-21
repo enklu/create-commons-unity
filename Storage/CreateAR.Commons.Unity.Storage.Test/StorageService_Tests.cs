@@ -1,78 +1,167 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using System.Collections.Generic;
+using CreateAR.Commons.Unity.Async;
 using NUnit.Framework;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.Commons.Unity.Storage
 {
     [TestFixture]
     public class StorageService_Tests
     {
-        public class TestObject
+        private static readonly KvModel Old = new KvModel
         {
-            
+            key = "this is a key",
+            owner = "me",
+            tags = "a,b,c",
+            version = 10
+        };
+        
+        private static readonly KvModel New = new KvModel
+        {
+            key = "new",
+            owner = "me",
+            tags = "a",
+            version = 0
+        };
+        
+        public class SuccessStorageWorker : IStorageWorker
+        {
+            private readonly List<KvModel> _models = new List<KvModel>();
+
+            public SuccessStorageWorker()
+            {
+                _models.Add(Old);
+            }
+
+            public IAsyncToken<KvModel[]> GetAll()
+            {
+                return new AsyncToken<KvModel[]>(_models.ToArray());
+            }
+
+            public IAsyncToken<KvModel> Create(object value)
+            {
+                _models.Add(New);
+
+                return new AsyncToken<KvModel>(New);
+            }
+
+            public IAsyncToken<object> Load(string key, Type type)
+            {
+                return new AsyncToken<object>(new TestClass());
+            }
+
+            public IAsyncToken<Void> Save(string key, object value, string tags, int version)
+            {
+                return new AsyncToken<Void>(Void.Instance);
+            }
+
+            public IAsyncToken<Void> Delete(string key)
+            {
+                return new AsyncToken<Void>(Void.Instance);
+            }
         }
 
-        public class DocumentData
-        {
-
-        }
-
-        public class AchievementData
-        {
-
-        }
-
-        private IStorageService _service;
+        private StorageService _loadedService;
 
         [SetUp]
-        public void Setup()
+        public void SetUp()
         {
-            
+            _loadedService = new StorageService(new SuccessStorageWorker());
+            _loadedService.Refresh();
         }
 
-        public void Usage()
+        [Test]
+        public void Refresh()
         {
-            // creation -- added to local manifest
-            _service
-                .Create(new TestObject())
-                .OnSuccess(bucket => Log.Debug(this, "Created bucket {0}.", bucket));
+            var service = new StorageService(new SuccessStorageWorker());
+            var successCalled = true;
 
-            // refresh local manifest of all buckets
-            _service
-                .Manifest
+            service
                 .Refresh()
-                .OnSuccess(manifest => Log.Debug(this, "Manifest loaded."));
-            
-            // bucket search -- synchronous
-            var achievements = _service.Manifest.FindOne<AchievementData>();
-            var documents = _service.Manifest.FindAll<DocumentData>();
-
-            // load -- only asynchronous if current version is different than manifest version
-            achievements
-                .Value()
-                .OnSuccess(value =>
+                .OnSuccess(_ =>
                 {
-                    //
+                    var all = service.All;
+                    Assert.IsTrue(all.Length == 1);
+                    Assert.AreSame(Old, all[0]);
                 });
 
-            // save -- local manifest is updated
-            achievements
-                .Save(new AchievementData()) // optional .Save(StorageOptions.IgnoreVersion) ignores latest version check
-                .OnSuccess(value =>
+            Assert.IsTrue(successCalled);
+        }
+
+        [Test]
+        public void RefreshError()
+        {
+            var service = new StorageService(new FailureStorageWorker());
+            var failureCalled = true;
+
+            service
+                .Refresh()
+                .OnFailure(_ =>
                 {
-                    //
+                    failureCalled = true;
                 });
 
-            // delete -- local manifest is updated
-            achievements
-                .Delete()
-                .OnSuccess(value =>
+            Assert.IsTrue(failureCalled);
+        }
+
+        [Test]
+        public void Get()
+        {
+            Assert.AreSame(Old.key, _loadedService.Get(Old.key).Key);
+            Assert.IsNull(_loadedService.Get(New.key));
+        }
+
+        [Test]
+        public void Find()
+        {
+            Assert.AreSame(Old.key, _loadedService.FindOne("a").Key);
+
+            _loadedService.Create(New);
+
+            Assert.AreSame(Old.key, _loadedService.FindOne("a").Key);
+        }
+
+        [Test]
+        public void FindAll()
+        {
+            _loadedService.Create(New);
+
+            var results = _loadedService.FindAll("a");
+            Assert.AreEqual(2, results.Length);
+        }
+
+        [Test]
+        public void Create()
+        {
+            var successCalled = false;
+
+            _loadedService
+                .Create(new TestClass())
+                .OnSuccess(bucket =>
                 {
-                    //
+                    successCalled = true;
+
+                    Assert.AreEqual(New.key, bucket.Key);
+                    Assert.AreEqual(New.tags, bucket.Tags);
                 });
 
-            // update available?
-            //account.RegisterForUpdates(...);
-            //account.UnRegisterForUpdates(...);
+            Assert.IsTrue(successCalled);
+        }
+
+        [Test]
+        public void CreateFail()
+        {
+            var failureCalled = false;
+
+            new StorageService(new FailureStorageWorker())
+                .Create(New)
+                .OnFailure(_ =>
+                {
+                    failureCalled = true;
+                });
+
+            Assert.IsTrue(failureCalled);
         }
     }
 }

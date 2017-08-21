@@ -1,278 +1,89 @@
-﻿using System;
-using CreateAR.Commons.Unity.Async;
-using NUnit.Framework;
-using Void = CreateAR.Commons.Unity.Async.Void;
+﻿using NUnit.Framework;
 
 namespace CreateAR.Commons.Unity.Storage
 {
-    public class ExceptionStorageWorker : IStorageWorker
-    {
-        public IAsyncToken<StorageWorkerResponse<T>> Load<T>(string key)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncToken<StorageWorkerResponse<T>> Save<T>(string key, T value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncToken<Void> Delete<T>(string key)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class SuccessStorageWorker : IStorageWorker
-    {
-        private readonly Func<object> _factory;
-
-        public SuccessStorageWorker(Func<object> factory)
-        {
-            _factory = factory;
-        }
-
-        public IAsyncToken<StorageWorkerResponse<T>> Load<T>(string key)
-        {
-            return new AsyncToken<StorageWorkerResponse<T>>(
-                new StorageWorkerResponse<T>
-                {
-                    Value = (T) _factory(),
-                    Version = 12
-                });
-        }
-
-        public IAsyncToken<StorageWorkerResponse<T>> Save<T>(string key, T value)
-        {
-            return new AsyncToken<StorageWorkerResponse<T>>(
-                new StorageWorkerResponse<T>
-                {
-                    Value = value
-                });
-        }
-
-        public IAsyncToken<Void> Delete<T>(string key)
-        {
-            return new AsyncToken<Void>(Void.Instance);
-        }
-    }
-
-    public class FailureStorageWorker : IStorageWorker
-    {
-        public IAsyncToken<StorageWorkerResponse<T>> Load<T>(string key)
-        {
-            return new AsyncToken<StorageWorkerResponse<T>>(
-                new Exception("Could not load."));
-        }
-
-        public IAsyncToken<StorageWorkerResponse<T>> Save<T>(string key, T value)
-        {
-            return new AsyncToken<StorageWorkerResponse<T>>(
-                new Exception("Could not save."));
-        }
-
-        public IAsyncToken<Void> Delete<T>(string key)
-        {
-            return new AsyncToken<Void>(
-                new Exception("Could not delete."));
-        }
-    }
-
     [TestFixture]
     public class StorageBucket_Tests
     {
-        public class TestClass
+        private StorageBucket _bucket;
+
+        [SetUp]
+        public void SetUp()
         {
-            public string Foo;
+            _bucket = new StorageBucket(
+                new StorageService_Tests.SuccessStorageWorker(),
+                "TestKey",
+                "TestTags",
+                1022);
         }
 
-        private readonly string _key = "this is a test key";
-        private readonly int _version = 21187;
-        private readonly TestClass _value = new TestClass
-        {
-            Foo = Guid.NewGuid().ToString()
-        };
-        
         [Test]
-        public void LoadValueSuccess()
+        public void DeleteSuccess()
         {
-            // Arrange
+            var called = false;
+            _bucket
+                .Delete()
+                .OnSuccess(_ => called = true);
+
+            Assert.IsTrue(called);
+        }
+
+        [Test]
+        public void CreateSuccess()
+        {
             var successCalled = false;
-            var failureCalled = false;
+            _bucket
+                .Delete()
+                .OnSuccess(_ => successCalled = true);
 
-            var bucket = new StorageBucket<TestClass>(
-                new SuccessStorageWorker(() => new TestClass()), 
-                _key,
-                _version);
-
-            // Act
-            bucket
-                .Value()
-                .OnSuccess(value =>
-                {
-                    successCalled = true;
-                })
-                .OnFailure(_ =>
-                {
-                    failureCalled = true;
-                });
-
-            // Assert
             Assert.IsTrue(successCalled);
-            Assert.IsFalse(failureCalled);
         }
 
         [Test]
-        public void SaveValueSuccess()
+        public void SaveSuccess()
         {
-            // Arrange
-            var successCalled = false;
-            var failureCalled = false;
-            var foo = "{\"A\":\"This is a test\"}";
+            var foo = "test1234";
 
-            var bucket = new StorageBucket<TestClass>(
-                new SuccessStorageWorker(() => new TestClass()),
-                _key,
-                _version);
+            var successCalled = true;
 
-            // Act
-            bucket
+            _bucket
                 .Save(new TestClass
                 {
                     Foo = foo
                 })
-                .OnSuccess(value =>
+                .OnSuccess(_ =>
                 {
-                    successCalled = true;
-                })
-                .OnFailure(_ =>
-                {
-                    failureCalled = true;
+                    _bucket
+                        .Value<TestClass>()
+                        .OnSuccess(value =>
+                        {
+                            successCalled = true;
+
+                            Assert.AreEqual(foo, value.Foo);
+                        });
                 });
 
-            // Assert
             Assert.IsTrue(successCalled);
-            Assert.IsFalse(failureCalled);
         }
 
         [Test]
-        public void DeleteValueSuccess()
+        public void SaveTagsSuccess()
         {
-            // Arrange
-            var successCalled = false;
-            var failureCalled = false;
+            var foo = "test1234";
 
-            var bucket = new StorageBucket<TestClass>(
-                new SuccessStorageWorker(() => new TestClass()),
-                _key,
-                _version);
+            var successCalled = true;
 
-            // Act
-            bucket
-                .Delete()
-                .OnSuccess(value =>
+            _bucket.Tags = "newtags";
+            _bucket
+                .Save()
+                .OnSuccess(_ =>
                 {
                     successCalled = true;
-                })
-                .OnFailure(_ =>
-                {
-                    failureCalled = true;
+
+                    Assert.AreEqual("newtags", _bucket.Tags);
                 });
 
-            // Assert
             Assert.IsTrue(successCalled);
-            Assert.IsFalse(failureCalled);
-        }
-
-        [Test]
-        public void LoadValueFailure()
-        {
-            // Arrange
-            var successCalled = false;
-            var failureCalled = false;
-
-            var bucket = new StorageBucket<TestClass>(
-                new FailureStorageWorker(),
-                _key,
-                _version);
-
-            // Act
-            bucket
-                .Value()
-                .OnSuccess(value =>
-                {
-                    successCalled = true;
-                })
-                .OnFailure(_ =>
-                {
-                    failureCalled = true;
-                });
-
-            // Assert
-            Assert.IsFalse(successCalled);
-            Assert.IsTrue(failureCalled);
-        }
-
-        [Test]
-        public void SaveValueFailure()
-        {
-            // Arrange
-            var successCalled = false;
-            var failureCalled = false;
-            var foo = "{\"A\":\"This is a test\"}";
-
-            var bucket = new StorageBucket<TestClass>(
-                new FailureStorageWorker(),
-                _key,
-                _version);
-
-            // Act
-            bucket
-                .Save(new TestClass
-                {
-                    Foo = foo
-                })
-                .OnSuccess(value =>
-                {
-                    successCalled = true;
-                })
-                .OnFailure(_ =>
-                {
-                    failureCalled = true;
-                });
-
-            // Assert
-            Assert.IsFalse(successCalled);
-            Assert.IsTrue(failureCalled);
-        }
-
-        [Test]
-        public void DeleteValueFailure()
-        {
-            // Arrange
-            var successCalled = false;
-            var failureCalled = false;
-
-            var bucket = new StorageBucket<TestClass>(
-                new FailureStorageWorker(),
-                _key,
-                _version);
-
-            // Act
-            bucket
-                .Delete()
-                .OnSuccess(value =>
-                {
-                    successCalled = true;
-                })
-                .OnFailure(_ =>
-                {
-                    failureCalled = true;
-                });
-
-            // Assert
-            Assert.IsFalse(successCalled);
-            Assert.IsTrue(failureCalled);
         }
     }
 }

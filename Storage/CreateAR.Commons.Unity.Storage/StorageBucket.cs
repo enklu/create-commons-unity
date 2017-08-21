@@ -1,53 +1,108 @@
 using System;
 using CreateAR.Commons.Unity.Async;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.Commons.Unity.Storage
 {
-    public sealed class StorageBucket<T>
+    /// <summary>
+    /// Represents a key-value storage element.
+    /// </summary>
+    public sealed class StorageBucket
     {
+        /// <summary>
+        /// Object that performs requests.
+        /// </summary>
         private readonly IStorageWorker _worker;
 
+        /// <summary>
+        /// The version we know about.
+        /// </summary>
         private int _version;
+
+        /// <summary>
+        /// The latest version the StorageService knows about.
+        /// </summary>
         private int _manifestVersion;
 
-        private T _value;
-
-        private IAsyncToken<T> _loadToken;
-
+        /// <summary>
+        /// The loaded value.
+        /// </summary>
+        private object _value;
+        
+        /// <summary>
+        /// The unique key.
+        /// </summary>
         public string Key { get; }
 
+        /// <summary>
+        /// Tags associated with this bucket.
+        /// </summary>
+        public string Tags { get; set; }
+
+        /// <summary>
+        /// Creates a new bucket.
+        /// </summary>
+        /// <param name="worker">The worker.</param>
+        /// <param name="key">Unique key.</param>
+        /// <param name="tags">Associated tags.</param>
+        /// <param name="version">Version of this bucket.</param>
         public StorageBucket(
             IStorageWorker worker,
             string key,
+            string tags,
             int version)
         {
             _worker = worker;
             _version = _manifestVersion = version;
 
             Key = key;
+            Tags = tags;
         }
 
-        public IAsyncToken<T> Value()
+        /// <summary>
+        /// Loads the bucket's value. Subsequent Value() calls will be cached.
+        /// 
+        /// If StorageService::Refresh returns a version higher than the cached
+        /// version, the next call to Value() will fetch the updated value.
+        /// </summary>
+        /// <typeparam name="T">The type to deserialize the object to.</typeparam>
+        /// <returns></returns>
+        public IAsyncToken<T> Value<T>()
         {
             var token = new AsyncToken<T>();
 
             if (_version == _manifestVersion && null != _value)
             {
-                token.Succeed(_value);
+                token.Succeed((T) _value);
             }
             else
             {
-                Load()
-                    .OnSuccess(token.Succeed)
-                    .OnFailure(token.Fail);
+                _worker
+                    .Load(Key, typeof(T))
+                    .OnSuccess(response =>
+                    {
+                        _value = (T)response;
+
+                        token.Succeed((T)_value);
+                    })
+                    .OnFailure(exception => token.Fail(exception));
             }
 
             return token;
         }
 
-        public IAsyncToken<T> Save(T value)
+        /// <summary>
+        /// Saves the bucket, automatically updating the version.
+        /// 
+        /// If a call to StorageService::Refresh() found a newer version, this
+        /// call will fail.
+        /// </summary>
+        /// <typeparam name="T">The type to deserialize the value to.</typeparam>
+        /// <param name="value">The value to save.</param>
+        /// <returns></returns>
+        public IAsyncToken<StorageBucket> Save<T>(T value)
         {
-            var token = new AsyncToken<T>();
+            var token = new AsyncToken<StorageBucket>();
 
             if (_manifestVersion != _version)
             {
@@ -55,14 +110,15 @@ namespace CreateAR.Commons.Unity.Storage
             }
             else
             {
+                var newVersion = _version + 1;
                 _worker
-                    .Save(Key, value)
-                    .OnSuccess(response =>
+                    .Save(Key, value, Tags, newVersion)
+                    .OnSuccess(_ =>
                     {
-                        _value = response.Value;
-                        _version = response.Version;
+                        _value = value;
+                        _version = newVersion;
                         
-                        token.Succeed(_value);
+                        token.Succeed(this);
                     })
                     .OnFailure(token.Fail);
             }
@@ -70,9 +126,23 @@ namespace CreateAR.Commons.Unity.Storage
             return token;
         }
 
-        public IAsyncToken<T> Delete()
+        /// <summary>
+        /// Saves current value. Useful when just updating Tags.
+        /// </summary>
+        /// <returns></returns>
+        public IAsyncToken<StorageBucket> Save()
         {
-            var token = new AsyncToken<T>();
+            return Save(_value);
+        }
+
+        /// <summary>
+        /// Deletes the KV. Disallows delete if latest version has not been
+        /// loaded.
+        /// </summary>
+        /// <returns></returns>
+        public IAsyncToken<Void> Delete()
+        {
+            var token = new AsyncToken<Void>();
 
             if (_manifestVersion != _version)
             {
@@ -81,13 +151,13 @@ namespace CreateAR.Commons.Unity.Storage
             else
             {
                 _worker
-                    .Delete<T>(Key)
+                    .Delete(Key)
                     .OnSuccess(_ =>
                     {
-                        // TODO: To think about: we're trusting the worker to
-                        // TODO: tell the manifest
+                        // TODO: To think about: we have to trust the worker to
+                        // TODO: tell the service.
 
-                        token.Succeed(_value);
+                        token.Succeed(Void.Instance);
                     })
                     .OnFailure(token.Fail);
             }
@@ -95,39 +165,13 @@ namespace CreateAR.Commons.Unity.Storage
             return token;
         }
 
+        /// <summary>
+        /// Called by StorageService when a later version has been found.
+        /// </summary>
+        /// <param name="manifestVersion"></param>
         internal void VersionUpdate(int manifestVersion)
         {
             _manifestVersion = manifestVersion;
-        }
-
-        private IAsyncToken<T> Load()
-        {
-            if (null != _loadToken)
-            {
-                return _loadToken;
-            }
-
-            var token = new AsyncToken<T>();
-
-            _worker
-                .Load<T>(Key)
-                .OnSuccess(response =>
-                {
-                    _loadToken = null;
-
-                    _version = response.Version;
-                    _value = response.Value;
-
-                    token.Succeed(_value);
-                })
-                .OnFailure(exception =>
-                {
-                    _loadToken = null;
-
-                    token.Fail(exception);
-                });
-
-            return token;
         }
     }
 }
