@@ -42,14 +42,12 @@ namespace CreateAR.Commons.Unity.Storage
         [Test]
         public void SaveSuccess()
         {
-            var foo = "test1234";
-
             var successCalled = true;
 
             _bucket
                 .Save(new TestClass
                 {
-                    Foo = foo
+                    Foo = "test"
                 })
                 .OnSuccess(_ =>
                 {
@@ -62,8 +60,6 @@ namespace CreateAR.Commons.Unity.Storage
         [Test]
         public void SaveTagsSuccess()
         {
-            var foo = "test1234";
-
             var successCalled = true;
 
             _bucket.Tags = "newtags";

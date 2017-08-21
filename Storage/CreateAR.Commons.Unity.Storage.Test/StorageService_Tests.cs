@@ -60,6 +60,8 @@ namespace CreateAR.Commons.Unity.Storage
 
             public IAsyncToken<Void> Delete(string key)
             {
+                OnDelete?.Invoke(key);
+
                 return new AsyncToken<Void>(Void.Instance);
             }
         }

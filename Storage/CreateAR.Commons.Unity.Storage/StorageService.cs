@@ -69,6 +69,8 @@ namespace CreateAR.Commons.Unity.Storage
 
                         bucket.VersionUpdate(model.version);
                     }
+
+                    token.Succeed(this);
                 })
                 .OnFailure(exception =>
                 {
