@@ -87,7 +87,7 @@ namespace CreateAR.Commons.Unity.Storage
                 {
                     var all = service.All;
                     Assert.IsTrue(all.Length == 1);
-                    Assert.AreSame(Old, all[0]);
+                    Assert.AreSame(Old.key, all[0].Key);
                 });
 
             Assert.IsTrue(successCalled);

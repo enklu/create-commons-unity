@@ -21,7 +21,7 @@ namespace CreateAR.Commons.Unity.Storage
         /// Dependencies.
         /// </summary>
         private readonly IHttpService _http;
-        private readonly JsonSerializer _json;
+        private readonly ISerializer _json;
 
         /// <inheritdoc cref="IStorageWorker"/>
         public event Action<string> OnDelete;
@@ -33,7 +33,7 @@ namespace CreateAR.Commons.Unity.Storage
         /// <param name="json">For JSON serialization.</param>
         public StorageWorker(
             IHttpService http,
-            JsonSerializer json)
+            ISerializer json)
         {
             _http = http;
             _json = json;
