@@ -104,7 +104,7 @@ namespace CreateAR.Commons.Unity.Storage
         {
             var token = new AsyncToken<StorageBucket>();
 
-            if (_manifestVersion != _version)
+            if (_manifestVersion > _version)
             {
                 token.Fail(new Exception("Cannot save without version update."));
             }
@@ -144,7 +144,7 @@ namespace CreateAR.Commons.Unity.Storage
         {
             var token = new AsyncToken<Void>();
 
-            if (_manifestVersion != _version)
+            if (_manifestVersion > _version)
             {
                 token.Fail(new Exception("Cannot delete without version update."));
             }
