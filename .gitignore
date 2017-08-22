@@ -265,3 +265,5 @@ __pycache__/
 
 # vim
 *.swp
+*.md~
+*.md.un~

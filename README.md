@@ -7,5 +7,5 @@ Libraries for Unity projects. Projects are built to dlls and uploaded to an arti
   * UI
   * FormInspector
 * Async
-* Http
+* [Http](docs/http/http.md)
 * Storage
