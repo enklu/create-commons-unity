@@ -1,17 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFramework>net35</TargetFramework>
     <AssemblyName>CreateAR.Commons.Unity.Editor.UI</AssemblyName>
     <RootNamespace>CreateAR.Commons.Unity.Editor.UI</RootNamespace>
-    <AssemblyVersion>0.2.7</AssemblyVersion>
-    <Version>0.2.7</Version>
+    <AssemblyVersion>0.2.9</AssemblyVersion>
+    <Version>0.2.9</Version>
     <Description>UI components for Unity editor.</Description>
     <Copyright>Copyright © 2017 CreateAR</Copyright>
     <Authors>CreateAR</Authors>
     <IncludeSymbols>True</IncludeSymbols>
-    <PackageReleaseNotes>Change styles based on tab selection.</PackageReleaseNotes>
-    <FileVersion>0.2.7</FileVersion>
+    <PackageReleaseNotes>Fix pdb.</PackageReleaseNotes>
+    <FileVersion>0.2.9</FileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>True</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="UnityEditor" Version="2017.1.0.3" />

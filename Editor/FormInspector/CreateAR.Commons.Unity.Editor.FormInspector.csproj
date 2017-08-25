@@ -1,18 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFramework>net35</TargetFramework>
     <AssemblyName>CreateAR.Commons.Unity.Editor.FormInspector</AssemblyName>
     <RootNamespace>CreateAR.Commons.Unity.Editor.FormInspector</RootNamespace>
-    <AssemblyVersion>0.1.0</AssemblyVersion>
-    <Version>0.1.0</Version>
+    <AssemblyVersion>0.1.1</AssemblyVersion>
+    <Version>0.1.1</Version>
     <Description>Generic object inspector for Unity Editor.</Description>
     <Copyright>Copyright © 2017 CreateAR</Copyright>
     <Authors>CreateAR</Authors>
     <IncludeSymbols>True</IncludeSymbols>
+    <FileVersion>0.1.1</FileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>True</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CreateAR.Commons.Unity.Editor.UI" Version="0.1.0" />
+    <PackageReference Include="CreateAR.Commons.Unity.Editor.UI" Version="0.2.8" />
     <PackageReference Include="UnityEditor" Version="2017.1.0.3" />
     <PackageReference Include="UnityEngine" Version="2017.1.0.3" />
   </ItemGroup>
