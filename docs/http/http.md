@@ -75,3 +75,4 @@ _http
 # Future Improvements
 
 * Automatically push URL through `UrlBuilder`, but only if url does not have protocol on the front (in case you need to pass in another builder).
+* Add `UrlBuilder.Url(string, replacements)`.
