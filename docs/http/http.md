@@ -71,3 +71,7 @@ _http
 * [JWT](http://jwt.io)
 * [Http Status Codes](https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html)
 * [Http Request Methods](https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html)
+
+# Future Improvements
+
+* Automatically push URL through `UrlBuilder`, but only if url does not have protocol on the front (in case you need to pass in another builder).
