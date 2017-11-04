@@ -1,6 +1,3 @@
-include 'Async/CreateAR.Commons.Unity.Async'
-include 'Async/CreateAR.Commons.Unity.Async.Test'
-
 include 'DataStructures/CreateAR.Commons.Unity.DataStructures'
 include 'DataStructures/CreateAR.Commons.Unity.DataStructures.Test'
 
