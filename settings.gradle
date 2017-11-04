@@ -1,9 +1,6 @@
 include 'DataStructures/CreateAR.Commons.Unity.DataStructures'
 include 'DataStructures/CreateAR.Commons.Unity.DataStructures.Test'
 
-include 'Http/CreateAR.Commons.Unity.Http'
-include 'Http/CreateAR.Commons.Unity.Http.Test'
-
 include 'Logging/CreateAR.Commons.Unity.Logging'
 include 'Logging/CreateAR.Commons.Unity.Logging.Test'
 
