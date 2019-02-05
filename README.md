@@ -1,6 +1,6 @@
 # Overview
 
-Libraries for Unity projects. Projects are built to dlls and uploaded to an artifact repository.
+Deprecated.
 
 * Editor
   * UI
